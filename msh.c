@@ -24,7 +24,7 @@
 
 /* Prototypes */
 
-char ** arg_parse (char *line);
+char **arg_parse (char *line);
 void processline (char *line);
 
 /* Shell main */
@@ -48,7 +48,6 @@ main (void)
             buffer[len-1] = 0;
 
         /* Run it ... */
-        arg_parse(buffer);
         processline (buffer);
 
     }
@@ -64,7 +63,9 @@ void processline (char *line)
 {
     pid_t  cpid;
     int    status;
-    
+
+    char **argv = arg_parse (line);
+
     /* Start a new process to do the job. */
     cpid = fork();
     if (cpid < 0) {
@@ -75,7 +76,7 @@ void processline (char *line)
     /* Check for who we are! */
     if (cpid == 0) {
       /* We are the child! */
-      execlp (line, line, (char *)0);
+      execvp (argv[0], argv);
       perror ("exec");
       exit (127);
     }
@@ -83,10 +84,12 @@ void processline (char *line)
     /* Have the parent wait for child to complete */
     if (wait (&status) < 0)
       perror ("wait");
+
+    free(argv);
 }
 
 
-char ** arg_parse (char *line)
+char **arg_parse (char *line)
 {
     int argc = 0;    // argument count
     char **argv;     // argument array
@@ -112,14 +115,15 @@ char ** arg_parse (char *line)
     } 
 
     /* Initialize arg array */
-    argv = (char **) malloc (sizeof(char *) * argc);
+    argv = (char **) malloc (sizeof(char *) * (argc + 1));
+    argv[argc] = (char *) NULL;
 
     /* Loop back over line, assigning arg pointers and adding EOS symbols */
     while (argc > 0) {
         if (line[idx-1] != ' ') {
             line[idx--] = EOS;
 
-            while (line[idx-1] != ' ') {
+            while (idx > 0 && line[idx-1] != ' ') {
                 idx--;      
             }
 
