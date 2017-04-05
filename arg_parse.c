@@ -6,7 +6,7 @@
 
 #include "proto.h"
 
-char **arg_parse (char *line)
+char **arg_parse (char *line, int *argcp)
 {
     int argc = 0;    // argument count
     char **argv;     // argument array
@@ -31,7 +31,10 @@ char **arg_parse (char *line)
         }
     } 
 
-    /* Initialize arg array */
+    /* Store the argument count */
+    *argcp = argc;
+
+    /* Initialize argv array */
     argv = (char **) malloc (sizeof(char *) * (argc + 1));
     argv[argc] = (char *) NULL;
 

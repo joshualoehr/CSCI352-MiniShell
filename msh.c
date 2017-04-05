@@ -56,12 +56,14 @@ void processline (char *line)
     pid_t  cpid;
     int    status;
 
-    char **argv = arg_parse (line);
+    int    argc;
+    char **argv = arg_parse (line, &argc);
 
     /* Start a new process to do the job. */
     cpid = fork();
     if (cpid < 0) {
       perror ("fork");
+      free(argv);
       return;
     }
     
