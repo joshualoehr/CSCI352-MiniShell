@@ -8,9 +8,10 @@
 
 char **arg_parse (char *line, int *argcp)
 {
-    int argc = 0;    // argument count
-    char **argv;     // argument array
+    int argc = 0;     // argument count
+    char **argv;      // argument array
     int idx = 0;
+    int in_quote = 0; // flag to determine if current char is within quotes
 
     /* Count the number of arguments */
     while (1) {
@@ -18,13 +19,20 @@ char **arg_parse (char *line, int *argcp)
         
         if (c == EOS) {
             break;      
+        } else if (c == '"') {
+            in_quote = !in_quote;     
         } else if (c != ' ') {
-            argc++;
+            if (!in_quote) {
+                argc++;
+            }
             
             /* Step forward until idx points after the arg */
             do {
                 c = line[idx++];
-            } while (c != ' ' && c != EOS);
+                if (c == '"') {
+                    in_quote = !in_quote;      
+                }
+            } while (in_quote || (c != ' ' && c != EOS));
 
             /* Step back one so idx points at last char of arg */
             idx--;
