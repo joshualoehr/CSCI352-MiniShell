@@ -6,6 +6,19 @@
 
 #include "proto.h"
 
+void remove_all(char *str, char c)
+{
+    char *src = str;
+    char *dst = str;
+
+    for (; *src != EOS; src++) {
+        if (*src != c) {
+            *(dst++) = *src;
+        }      
+    }
+    *dst = EOS;
+}
+
 char **arg_parse (char *line, int *argcp)
 {
     int argc = 0;     // argument count
@@ -22,20 +35,21 @@ char **arg_parse (char *line, int *argcp)
         } else if (c == '"') {
             in_quote = !in_quote;     
         } else if (c != ' ') {
-            if (!in_quote) {
-                argc++;
-            }
-            
             /* Step forward until idx points after the arg */
             do {
                 c = line[idx++];
                 if (c == '"') {
                     in_quote = !in_quote;      
                 }
+
+                if (line[idx] == EOS && in_quote) {
+                    fprintf(stderr, "Error: mismatched quotes.\n");
+                    argc = 0;
+                    return (char **) NULL;
+                }
             } while (in_quote || (c != ' ' && c != EOS));
 
-            /* Step back one so idx points at last char of arg */
-            idx--;
+            argc++;
         }
     } 
 
@@ -51,10 +65,16 @@ char **arg_parse (char *line, int *argcp)
         if (line[idx-1] != ' ') {
             line[idx--] = EOS;
 
-            while (idx > 0 && line[idx-1] != ' ') {
+            /* Step backwards to the beginning of the arg */
+            int in_quote = line[idx] == '"';
+            while (idx > 0 && (in_quote || line[idx-1] != ' ')) {
                 idx--;      
+                if (line[idx] == '"') {
+                    in_quote = !in_quote;      
+                }
             }
 
+            remove_all(&line[idx], '"');
             argv[--argc] = &line[idx];
         }     
 
