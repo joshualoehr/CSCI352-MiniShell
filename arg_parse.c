@@ -31,23 +31,20 @@ char **arg_parse (char *line, int *argcp)
         char c = line[idx++];
         
         if (c == EOS) {
+            if (in_quote) {
+                fprintf(stderr, "Error: mismatched quotes.\n");
+                *argcp = 0;
+                return (char **) NULL;
+            }
             break;      
-        } else if (c == '"') {
-            in_quote = !in_quote;     
         } else if (c != ' ') {
             /* Step forward until idx points after the arg */
             do {
-                c = line[idx++];
                 if (c == '"') {
                     in_quote = !in_quote;      
                 }
-
-                if (line[idx] == EOS && in_quote) {
-                    fprintf(stderr, "Error: mismatched quotes.\n");
-                    argc = 0;
-                    return (char **) NULL;
-                }
-            } while (in_quote || (c != ' ' && c != EOS));
+                c = line[idx++];
+            } while ((in_quote || c != ' ') && c != EOS);
 
             argc++;
         }
@@ -57,16 +54,22 @@ char **arg_parse (char *line, int *argcp)
     *argcp = argc;
 
     /* Initialize argv array */
-    argv = (char **) malloc (sizeof(char *) * (argc + 1));
+    if ((argv = (char **) malloc (sizeof(char *) * (argc + 1))) == NULL) {
+        perror("malloc"); 
+    }
     argv[argc] = (char *) NULL;
 
+    /* Decrement idx back to the EOS terminating line */
+    idx--;
+
     /* Loop back over line, assigning arg pointers and adding EOS symbols */
+    in_quote = 0;
     while (argc > 0) {
         if (line[idx-1] != ' ') {
             line[idx--] = EOS;
 
             /* Step backwards to the beginning of the arg */
-            int in_quote = line[idx] == '"';
+            in_quote = (line[idx] == '"');
             while (idx > 0 && (in_quote || line[idx-1] != ' ')) {
                 idx--;      
                 if (line[idx] == '"') {
