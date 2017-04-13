@@ -1,4 +1,4 @@
-/* CS 352 -- Mini Shell - arg_parse  
+/* CS 352 -- Mini Shell - arg_parse.c
  *
  *   April 5, 2017,  Josh Loehr
  *
@@ -6,7 +6,7 @@
 
 #include "proto.h"
 
-void remove_all(char *str, char c)
+void remove_all (char *str, char c)
 {
     char *src = str;
     char *dst = str;

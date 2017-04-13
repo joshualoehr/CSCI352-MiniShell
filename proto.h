@@ -20,5 +20,6 @@
 /* Prototypes */
 
 char **arg_parse (char *line, int *argcp);
+int handle_builtins (int argc, char **argv);
 void processline (char *line);
 

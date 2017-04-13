@@ -64,6 +64,11 @@ void processline (char *line)
         return;      
     }
 
+    if (handle_builtins(argc, argv)) {
+        free(argv);
+        return;      
+    }
+
     /* Start a new process to do the job. */
     cpid = fork();
     if (cpid < 0) {
