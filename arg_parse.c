@@ -32,7 +32,7 @@ char **arg_parse (char *line, int *argcp)
         
         if (c == EOS) {
             if (in_quote) {
-                fprintf(stderr, "Error: mismatched quotes.\n");
+                dprintf(STDERR, "Unmatched \".\n");
                 *argcp = 0;
                 return (char **) NULL;
             }

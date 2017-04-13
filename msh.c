@@ -64,6 +64,7 @@ void processline (char *line)
         return;      
     }
 
+    /* If command is a builtin, execute it and return */
     if (handle_builtins(argc, argv)) {
         free(argv);
         return;      

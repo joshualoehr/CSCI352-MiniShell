@@ -22,6 +22,7 @@ typedef struct
 
 /* BUILTIN COMMANDS */
 
+/* Builtin for exit [value] */
 void builtin_exit_func (int argc, char **argv)
 {
     int val = 0;
@@ -32,32 +33,43 @@ void builtin_exit_func (int argc, char **argv)
 }
 Command builtin_exit = { .name="exit", .func=builtin_exit_func };
 
-
+/* Builtin for aecho [-n] [arguments] */
 void builtin_aecho_func (int argc, char **argv)
 {
-    int idx = 1;
-    char terminate = '\n';
+    if (argc == 1) {
+        dprintf(STDOUT, "\n");      
+        return;
+    }
 
-    if (argc > idx && strcmp(argv[idx], "-n") == 0) {
-        terminate = EOS;      
+    int idx = 1;
+    int newline_terminate = 1;
+
+    if (argc > idx && strcmp("-n", argv[idx]) == 0) {
+        newline_terminate = 0;
         idx++;
     }
 
-    char frmt[4];
-    strncpy("%s\0", frmt, 3);
+    char frmt[3];
+    strcpy(frmt, "%s");
     do {
-        dprintf(1, frmt, argv[idx++]);
-        strncpy(" %s", frmt, 3);
+        dprintf(STDOUT, frmt, argv[idx++]);
+        strcpy(frmt, " %s");
     } while (argc > idx);
-    dprintf(1, "%c", terminate);
+
+    if (newline_terminate) {
+        dprintf(STDOUT, "\n");
+    }
 }
 Command builtin_aecho = { .name="aecho", .func=builtin_aecho_func };
 
 
 /* BUILTIN HANDLER */
 
+/* Check if argv[0] is a builtin command. If it is, execute it. 
+ * Returns 1 if a builtin was executed; 0 otherwise. */
 int handle_builtins (int argc, char **argv) 
 {
+    /* Initialize Command struct array */
     Command *builtins = (Command *) malloc(sizeof(Command) * NUM_BUILTINS);
     if (builtins == NULL) {
         perror("malloc");      
@@ -65,11 +77,15 @@ int handle_builtins (int argc, char **argv)
     builtins[0] = builtin_exit;
     builtins[1] = builtin_aecho;
 
+    /* Check for a matching builtin command */
     int i;
     for (i = 0; i < NUM_BUILTINS; i++) {
         Command cmd = builtins[i];
         if (strcmp(cmd.name, argv[0]) == 0) {
+
+            /* Execute the builtin */
             cmd.func(argc, argv); 
+
             free(builtins);
             return 1;
         }      

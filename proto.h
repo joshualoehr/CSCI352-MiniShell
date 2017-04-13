@@ -16,6 +16,8 @@
 
 #define LINELEN 1024
 #define EOS     '\0'
+#define STDOUT  1
+#define STDERR  2
 
 /* Prototypes */
 
