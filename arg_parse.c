@@ -1,4 +1,6 @@
-/* CS 352 -- Mini Shell - arg_parse.c
+/*   $Id: arg_parse.c,v 1.3 2017/04/24 04:39:24 loehrj Exp $
+ *
+ * CS 352 -- Mini Shell!  
  *
  *   April 5, 2017,  Josh Loehr
  *
@@ -45,6 +47,7 @@ char **arg_parse (char *line, int *argcp)
                 }
                 c = line[idx++];
             } while ((in_quote || c != ' ') && c != EOS);
+            idx--;
 
             argc++;
         }

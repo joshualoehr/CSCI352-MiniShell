@@ -1,0 +1,28 @@
+Script started on Sun 23 Apr 2017 11:18:48 PM PDT
+]0;loehrj@cf416-17: ~/csci352/work352/mshloehrj@cf416-17:~/csci352/work352/msh$ cd /home/phil/public/cs352/testa3
+[0m[01;34md[0m  [01;34mtestdir[0m  [01;32marglist[0m  arglist.c  [01;32mcheckppid[0m  checkppid.c  MSH.OUT  msh-script1  [01;32mtry[0m
+]0;loehrj@cf416-17: /home/phil/public/cs352/testa3loehrj@cf416-17:/home/phil/public/cs352/testa3$ ./try
+Getting CVS tag ASSIGNMENT-3
+making ...
+testing ...
+Big script output same
+Good exit status
+
+Testing Errors
+% Test: Next line should have a missing } error
+% msh: no matching }
+% Test: Next two lines should be cd errors
+% cd: No such file or directory
+% cd: Environment variable HOME not set.
+% Test: Next line should be an expansion overflow error
+% msh: expansion too long
+% Test: Error Testing Done
+% 
+Tests done!
+View INFO? n
+Remove /home/loehrj/testa3? y
+Removing /home/loehrj/testa3
+]0;loehrj@cf416-17: /home/phil/public/cs352/testa3loehrj@cf416-17:/home/phil/public/cs352/testa3$ exit
+exit
+
+Script done on Sun 23 Apr 2017 11:19:13 PM PDT

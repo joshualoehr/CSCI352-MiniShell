@@ -1,4 +1,6 @@
-/* CS 352 -- Mini Shell!  
+/*   $Id: msh.c,v 1.7 2017/05/03 23:40:08 loehrj Exp $
+ *
+ * CS 352 -- Mini Shell!  
  *
  *   Sept 21, 2000,  Phil Nelson
  *   Modified April 8, 2001 
@@ -19,22 +21,40 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+/* Globals */
+int margc;
+char **margv;
+int margshift = 0;
+int exit_status = 0;
+
 /* Shell main */
 
 int
-main (void)
+main (int argc, char **argv)
 {
+    margc = argc;
+    margv = argv;
+
     char   buffer [LINELEN];
     int    len;
 
+    FILE *in = stdin;
+    if (margc > 1) {
+        if ((in = fopen(margv[1], "r")) == NULL) {
+            perror("fopen"); 
+            exit(127);
+        } 
+    }
+
     while (1) {
 
-        /* prompt and get line */
-        fprintf (stderr, "%% ");
-        if (fgets (buffer, LINELEN, stdin) != buffer)
-          break;
+        /* prompt (if interactive) and get line */
+        if (in == stdin)
+            fprintf (stderr, "%% ");
+        if (fgets (buffer, LINELEN, in) != buffer)
+            break;
 
-            /* Get rid of \n at end of buffer. */
+        /* Get rid of \n at end of buffer. */
         len = strlen(buffer);
         if (buffer[len-1] == '\n')
             buffer[len-1] = 0;
@@ -44,7 +64,7 @@ main (void)
 
     }
 
-    if (!feof(stdin))
+    if (!feof(in))
         perror ("read");
 
     return 0;		/* Also known as exit (0); */
@@ -54,10 +74,14 @@ main (void)
 void processline (char *line)
 {
     pid_t  cpid;
-    int    status;
+
+    char expanded_line[LINELEN];
+    if (expand(line, expanded_line, LINELEN)) {
+        return;      
+    }
 
     int    argc;
-    char **argv = arg_parse (line, &argc);
+    char **argv = arg_parse (expanded_line, &argc);
 
     if (argc == 0) {
         free(argv);
@@ -87,7 +111,7 @@ void processline (char *line)
     }
     
     /* Have the parent wait for child to complete */
-    if (wait (&status) < 0)
+    if (wait (&exit_status) < 0)
         perror ("wait");
 
     free(argv);

@@ -1,0 +1,7 @@
+envset NAME Josh
+echo Hello ${NAME}!
+echo 0:$0 1:$1 2:$2 3:$3
+echo $# args
+shift abc
+echo 0:$0 1:$1 2:$2 3:$3
+echo $# args
