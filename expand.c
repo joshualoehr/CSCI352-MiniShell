@@ -36,7 +36,7 @@ int expand (char *orig, char *new, int newsize) {
                            && c != EOS && c != '"' && c != '/');      
                     
                     if (c == '/') {
-                        dprintf(STDERR, "%s: no match", margv[0]);      
+                        dprintf(STDERR, "%s: no match\n", margv[0]);      
                         return FAILURE;
                     }
 
@@ -54,20 +54,35 @@ int expand (char *orig, char *new, int newsize) {
                     struct dirent *entry;
                     errno = 0; // To distinguish success/failure after call 
                     int first_entry = 1; // flag for spacing
+                    int at_least_one_match = 0;
 
                     while ((entry = readdir(curr_dir)) != NULL) {
                         if (entry->d_name[0] != '.') {
-                            
 
-                            if (first_entry) {
-                                first_entry = 0;
-                            } else {
-                                new[new_idx++] = ' ';      
+                            int matches_context = 1;
+                            if (context != NULL) {
+                                int c_len = strlen(context);
+                                int e_len = strlen(entry->d_name);
+                                char *entry_name_end = &entry->d_name[e_len - c_len];
+
+                                if (strcmp(context, entry_name_end) != 0) {
+                                    matches_context = 0;      
+                                }
                             }
 
-                            int r_idx = 0;
-                            while (entry->d_name[r_idx] != EOS) {
-                                new[new_idx++] = entry->d_name[r_idx++]; 
+                            if (matches_context) {
+                                at_least_one_match = 1;
+
+                                if (first_entry) {
+                                    first_entry = 0;
+                                } else {
+                                    new[new_idx++] = ' ';      
+                                }
+
+                                int r_idx = 0;
+                                while (entry->d_name[r_idx] != EOS) {
+                                    new[new_idx++] = entry->d_name[r_idx++]; 
+                                }       
                             }
                         }
                     }
@@ -81,9 +96,20 @@ int expand (char *orig, char *new, int newsize) {
                         perror("closedir");
                         return FAILURE;      
                     }
+
+                    if (context != NULL && !at_least_one_match) {
+                        new[new_idx++] = '*';
+
+                        int r_idx = 0;
+                        while (context[r_idx] != EOS) {
+                            new[new_idx++] = context[r_idx++];
+                        }     
+                    }
                 }      
+                new[new_idx++] = c;      
+            } else {
+                new[new_idx++] = c;                         
             }
-            new[new_idx++] = c;      
                   
         } else if (c == '$') {
             c = orig[orig_idx++];      
