@@ -8,7 +8,7 @@
 
 #include "proto.h"
 
-#define NUM_BUILTINS 7
+#define NUM_BUILTINS 8
 #define OVERWRITE 1
 
 
@@ -193,6 +193,14 @@ int builtin_unshift_func (int argc, char **argv)
 }
 Command builtin_unshift = { .name="unshift", .func=builtin_unshift_func };
 
+/* Builtin for sstat file [file ...] */
+int builtin_sstat_func (int argc, char **argv)
+{
+    if (argc == 1) {
+        dprintf(STDERR, "usage: sstat file [file ...]\n");      
+    }
+}
+Command builtin_sstat = { .name="sstat", .func=builtin_sstat_func };
 
 
 /* BUILTIN HANDLER */
@@ -213,6 +221,7 @@ int handle_builtins (int argc, char **argv)
     builtins[4] = builtin_cd;
     builtins[5] = builtin_shift;
     builtins[6] = builtin_unshift;
+    builtins[7] = builtin_sstat;
 
     /* Check for a matching builtin command */
     int i;
